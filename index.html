@@ -804,6 +804,27 @@ body { font-size: 15px; -webkit-font-smoothing: antialiased; }
 }
 
 .game .hud.mine { background: rgba(8,12,26,.84) !important; box-shadow: 0 4px 16px rgba(0,0,0,.45) !important; border-radius: 12px !important; }
+
+/* ===== v7：淺色青花底板 + 中間擲骰 ===== */
+.hud.topbar, .hud.askwrap, .game .hud.mine { background: linear-gradient(170deg, rgba(253,251,245,.94), rgba(232,240,252,.92)) !important; border: 1.5px solid rgba(43,77,140,.35) !important; box-shadow: 0 4px 14px rgba(10,20,40,.28) !important; color: #1d2b4a !important; text-shadow: none !important; }
+.hud.topbar *, .hud.askwrap *, .game .hud.mine * { text-shadow: none !important; }
+.hud.topbar .round { color: #14306a !important; } .hud.topbar .evmini b { color: #b3261e !important; } .hud.topbar .evmini span, .hud.topbar .bank, .hud.topbar .kl { color: #34405a !important; }
+.game .ask .q { color: #14306a !important; } .game .ask .hint, .game .askp .hint, .game .ask .waiting { color: #34405a !important; } .game .askp { color: #1d2b4a !important; }
+.ask .q::after { filter: invert(1) brightness(.35) sepia(1) hue-rotate(190deg) saturate(3); }
+.game .ask .opt { color: #14306a !important; background: linear-gradient(90deg, rgba(43,108,176,.18), rgba(43,108,176,.04)) !important; border-left: 3px solid #2b6cb0 !important; font-weight: 600; }
+.game .ask .opt:hover { background: linear-gradient(90deg, rgba(43,108,176,.32), rgba(43,108,176,.08)) !important; }
+.game .ask .opt.skip { color: #4a5570 !important; border-left-color: #9aa3b8 !important; background: linear-gradient(90deg, rgba(120,130,150,.14), transparent) !important; }
+.game .ask .chk { color: #1d2b4a !important; }
+.game .bidbox output { color: #14306a !important; } .game .bidbox button { color: #14306a !important; background: #fff !important; border: 1.5px solid #2b4d8c !important; border-image: none !important; border-radius: 50% !important; width: 40px; height: 40px; }
+.game .hud.mine .mnm b { color: #14306a !important; } .game .hud.mine .mnm span { color: #7a5410 !important; }
+.game .hud.mine .mat { color: #14306a !important; background: rgba(20,48,106,.08) !important; } .game .hud.mine .mat.need { color: #b3261e !important; background: rgba(179,38,30,.1) !important; }
+.game .hud.mine .m2 { color: #34405a !important; } .game .hud.mine .goal.need { color: #b3261e !important; } .game .hud.mine .goal.ok { color: #1f7a3e !important; } .game .hud.mine .where { color: #4a5570 !important; }
+.hud.tr .ibtn { background: rgba(253,251,245,.9); color: #14306a; border-color: rgba(43,77,140,.4); } .hud.tr .ibtn.warn { color: #b3261e; border-color: rgba(179,38,30,.45); } .hud.tr .ibtn.on { background: #e9c46a; }
+.rollcenter { position: absolute; left: 50%; top: 58%; transform: translate(-50%, -50%); z-index: 60; }
+.rollbtn2 { font: inherit; font-family: var(--display); font-weight: 900; font-size: 26px; letter-spacing: .4em; padding: 14px 34px 14px 46px; border-radius: 999px; cursor: pointer; color: #14306a;
+  background: linear-gradient(170deg, #ffffff, #dbe8fb); border: 2px solid #2b6cb0; box-shadow: 0 8px 22px rgba(10,20,40,.45), 0 0 0 6px rgba(255,255,255,.35); animation: rollhint 1.4s ease-in-out infinite; }
+.rollbtn2:hover { background: linear-gradient(170deg, #fff, #c7dbf8); }
+@media (max-height: 520px) { .rollbtn2 { font-size: 18px; padding: 8px 20px 8px 28px; } }
 </style>
 
 <div id="app"></div>
@@ -1458,6 +1479,7 @@ function cardHTML(k, extra) { const gen = k.startsWith('q_'); return `<button cl
 // ---------- 開局流程：首頁 → 開始遊戲 → 抽身分 → 選技能 → 確認陣容 ----------
 function charCardHTML(c, extra) { return `<div class="fcard idcard${extra || ''}" style="--c:${COLORS[c]}"><img class="fart" src="assets/id_${c}.webp" alt=""><img class="fframe" src="assets/card_frame.webp" alt=""><div class="ftx"><b>${E.CNAME[c]}</b><span>${esc(passive(c))}</span></div></div>`; }
 function renderSetup() { renderHome(); }
+function playAgain() { SETUP.c = null; SETUP.ex = []; SETUP.ge = []; renderHome(); showStartModal(); }
 document.addEventListener('click', e => { if (!e.target.closest('[data-exit]')) return;
   $('#ov').innerHTML = `<div class="overlay"><div class="sheet" style="width:min(400px,92vw)"><h3>結束遊戲？</h3><div class="hint" style="text-align:center">這一局還沒開始，結束會回到首頁，剛纔抽的身分和選的卡不會保留。</div><div class="row" style="justify-content:center"><button class="btn" id="ovx">再想想</button><button class="btn gold" id="exok">回到首頁</button></div></div></div>`;
   $('#ovx').onclick = () => { $('#ov').innerHTML = ''; }; $('#exok').onclick = () => { SETUP.c = null; SETUP.ex = []; SETUP.ge = []; renderHome(); }; });
@@ -1795,9 +1817,9 @@ function showEnd(res) {
   $('#ov').innerHTML = `<div class="overlay"><div class="sheet"><h3>${res.winners.includes(ME) ? '你贏了！' : `${esc(E.CNAME[winP.c])} 獲勝`}</h3>
     <div class="players">${rows.map(({ p, b }, k) => `<div class="pl${p.i === ME ? ' me' : ''}" style="--c:${COLORS[p.c]}"><img src="${AV(p.c)}" alt=""><div><div class="nm">第 ${k + 1} 名 · ${E.CNAME[p.c]}${p.i === ME ? '（你）' : ''}</div>
       <div class="st"><span>籌碼 ${b.vp}</span><span>店鋪 ${b.shops}</span><span>銀兩 ${b.silver}（${p.silver} 兩）</span>${b.left ? `<span>存貨 ${b.left}</span>` : ''}<span>瓷器 ${p.wares} 件</span></div></div><div class="vp">${b.total}<small>總分</small></div></div>`).join('')}</div>
-    <div class="row"><button class="btn gold" id="again">再來一局</button><button class="btn plain" id="seeboard">看棋盤</button></div></div></div>`;
-  $('#again').onclick = () => { SETUP.ex = []; SETUP.ge = []; renderSetup(); };
-  $('#seeboard').onclick = () => { $('#ov').innerHTML = ''; PEND = null; $('#ask').innerHTML = '<div class="ask"><div class="q">對局結束</div><button class="btn gold" id="again2">再來一局</button></div>'; $('#again2').onclick = () => { SETUP.ex = []; SETUP.ge = []; renderSetup(); }; };
+    <div class="row"><button class="btn gold" id="again">再來一局</button><button class="btn" id="endhome">返回首頁</button><button class="btn plain" id="seeboard">看棋盤</button></div></div></div>`;
+  $('#again').onclick = playAgain; $('#endhome').onclick = () => { SETUP.ex = []; SETUP.ge = []; renderHome(); };
+  $('#seeboard').onclick = () => { $('#ov').innerHTML = ''; PEND = null; $('#ask').innerHTML = '<div class="ask"><div class="q">對局結束</div><button class="btn gold" id="again2">再來一局</button></div>'; $('#again2').onclick = playAgain; };
 }
 
 // ---------- 決定 ----------
@@ -1812,11 +1834,12 @@ function planLabel(o) { const t = G.MAP[o.node]; const via = o.path.slice(0, -1)
 function renderAsk() {
   const el = $('#ask'); if (!el) return;
   el.classList.toggle('idle', !PEND);
+  if (!PEND || !(PEND.kind === 'move' && PEND.needRoll)) document.querySelectorAll('.rollcenter').forEach(x => x.remove());
   if (!PEND) { el.innerHTML = `<div class="ask"><div class="q">${BUSY ? '其他玩家行動中…' : ''}</div><div class="waiting">${FAST ? '' : '可以按右上「快進」跳過動畫'}</div></div>`; return; }
   ACT = []; const P = PEND, d = P.data; const head = q => `<div class="ask"><div class="q">${esc(q)}</div>`;
   let h = '';
   switch (P.kind) {
-    case 'move': if (P.needRoll) { h = head('輪到你了') + `<div class="hint">擲兩顆骰子，選一顆來走。</div><div class="row"><button class="btn gold rollbtn" id="rollgo">擲骰</button></div></div>`; break; }
+    case 'move': if (P.needRoll) { h = head('輪到你了') + `<div class="hint">按畫面中間的「擲骰」，擲兩顆骰子，選一顆來走。</div></div>`; break; }
       h = head(`擲出 ${d.dice.join(' 和 ')}，選一顆走`) + `<div class="hint">選一顆骰子和路線；發亮的格子也可以直接點。</div><div class="opts">${d.options.map(o => btn(planLabel(o), o)).join('')}</div></div>`; break;
     case 'repath': h = head(`${d.why}：改走 ${d.steps} 步`) + `<div class="opts">${d.options.map(o => btn(planLabel(o), o)).join('')}</div></div>`; break;
     case 'intervene': {
@@ -1842,8 +1865,10 @@ function renderAsk() {
     default: h = head('繼續') + btn('繼續', P.ai) + '</div>';
   }
   el.innerHTML = h;
+  document.querySelectorAll('.rollcenter').forEach(x => x.remove());
+  if (P.kind === 'move' && P.needRoll) $('#game').insertAdjacentHTML('beforeend', '<div class="rollcenter"><button class="rollbtn2" id="rollgo">擲骰</button></div>');
   el.querySelectorAll('[data-a]').forEach(b => b.onclick = () => step(ACT[+b.dataset.a]));
-  if ($('#rollgo')) $('#rollgo').onclick = async () => { $('#rollgo').disabled = true; await tumble(ME, P.data.dice, 900); P.needRoll = false; renderAsk(); renderBoard(); renderPlayers(); };
+  if ($('#rollgo')) $('#rollgo').onclick = async () => { document.querySelectorAll('.rollcenter').forEach(x => x.remove()); await tumble(ME, P.data.dice, 900); P.needRoll = false; renderAsk(); renderBoard(); renderPlayers(); };
   if (P.kind === 'bid') { const out = $('#bidv'); const set = v => { out.textContent = Math.max(0, Math.min(d.cap, v)); };
     $('#bm').onclick = () => set(+out.textContent - 1); $('#bp').onclick = () => set(+out.textContent + 1);
     $('#bidgo').onclick = () => { const boost = $('#bidyl') && $('#bidyl').checked ? 's_yuling' : $('#bidhd') && $('#bidhd').checked ? 'g_huadi' : null; step({ b: +out.textContent, boost }); }; }
@@ -1914,7 +1939,7 @@ addEventListener('pointerdown', () => { if (SET.music) Music.start(); }, { once:
 
 function fitCards(root) { (root || document).querySelectorAll('.fcard .ftx').forEach(t => { if (!t.offsetHeight) return; t.style.fontSize = ''; let f = 100; while (t.scrollHeight > t.clientHeight + 1 && f > 55) { f -= 5; t.style.fontSize = f + '%'; } }); }
 // ---------- 簡繁切換：頁面本身是繁體，選簡體時逐字轉換 ----------
-const T2S = {"給": "给", "換": "换", "記": "记", "說": "说", "規": "规", "內": "内", "進": "进", "選": "选", "側": "侧", "議": "议", "學": "学", "識": "识", "邊": "边", "閉": "闭", "讀": "读", "滾": "滚", "見": "见", "帳": "帐", "尋": "寻", "籌": "筹", "並": "并", "還": "还", "獲": "获", "餘": "余", "攤": "摊", "剛": "刚", "貨": "货", "細": "细", "試": "试", "調": "调", "項": "项", "關": "关", "羅": "罗", "決": "决", "紋": "纹", "稱": "称", "湊": "凑", "發": "发", "暫": "暂", "刪": "删", "貿": "贸", "讓": "让", "應": "应", "遊": "游", "窯": "窑", "鋪": "铺", "屬": "属", "盜": "盗", "類": "类", "嗎": "吗", "縮": "缩", "佈": "布", "寫": "写", "順": "顺", "認": "认", "與": "与", "機": "机", "擋": "挡", "場": "场", "對": "对", "勝": "胜", "撲": "扑", "亂": "乱", "裏": "里", "動": "动", "結": "结", "嶺": "岭", "電": "电", "輪": "轮", "丟": "丢", "風": "风", "擠": "挤", "雙": "双", "體": "体", "錢": "钱", "廟": "庙", "區": "区", "庫": "库", "樂": "乐", "擇": "择", "總": "总", "驅": "驱", "費": "费", "單": "单", "緊": "紧", "筆": "笔", "優": "优", "條": "条", "線": "线", "約": "约", "碼": "码", "顧": "顾", "徑": "径", "寬": "宽", "祕": "秘", "經": "经", "擲": "掷", "過": "过", "採": "采", "夠": "够", "錄": "录", "張": "张", "預": "预", "欄": "栏", "籤": "签", "蔘": "参", "橫": "横", "無": "无", "蘭": "兰", "鬥": "斗", "斷": "断", "紅": "红", "頂": "顶", "樣": "样", "戲": "戏", "佔": "占", "謝": "谢", "週": "周", "狀": "状", "搶": "抢", "爲": "为", "滿": "满", "徵": "征", "漸": "渐", "麼": "么", "開": "开", "種": "种", "顆": "颗", "豐": "丰", "銀": "银", "贏": "赢", "兩": "两", "賣": "卖", "壓": "压", "確": "确", "幾": "几", "燒": "烧", "沒": "没", "嵐": "岚", "問": "问", "雲": "云", "帶": "带", "專": "专", "環": "环", "獎": "奖", "續": "续", "貼": "贴", "誰": "谁", "變": "变", "備": "备", "轉": "转", "顯": "显", "數": "数", "圖": "图", "個": "个", "較": "较", "戰": "战", "點": "点", "盤": "盘", "鬧": "闹", "腦": "脑", "這": "这", "藍": "蓝", "現": "现", "礦": "矿", "繼": "继", "競": "竞", "隨": "随", "請": "请", "羣": "群", "鈕": "钮", "將": "将", "號": "号", "頁": "页", "硯": "砚", "時": "时", "頭": "头", "統": "统", "產": "产", "擁": "拥", "蓋": "盖", "護": "护", "曉": "晓", "價": "价", "買": "买", "簡": "简", "牽": "牵", "陰": "阴", "額": "额", "齊": "齐", "畫": "画", "間": "间", "錯": "错", "隻": "只", "鄰": "邻", "脈": "脉", "會": "会", "態": "态", "標": "标", "蠱": "蛊", "別": "别", "長": "长", "響": "响", "設": "设", "從": "从", "則": "则", "層": "层", "來": "来", "領": "领", "製": "制", "撐": "撑", "後": "后", "觸": "触", "纔": "才", "須": "须", "檔": "档", "補": "补", "陣": "阵", "準": "准", "財": "财"};
+const T2S = {"給": "给", "後": "后", "轉": "转", "帶": "带", "響": "响", "鄰": "邻", "隻": "只", "調": "调", "貿": "贸", "鈕": "钮", "觸": "触", "機": "机", "沒": "没", "產": "产", "間": "间", "誰": "谁", "進": "进", "滿": "满", "讓": "让", "畫": "画", "紅": "红", "屬": "属", "標": "标", "窯": "窑", "頁": "页", "側": "侧", "細": "细", "來": "来", "確": "确", "領": "领", "這": "这", "藍": "蓝", "線": "线", "橫": "横", "從": "从", "勝": "胜", "並": "并", "預": "预", "緊": "紧", "開": "开", "撐": "撑", "發": "发", "學": "学", "關": "关", "裏": "里", "狀": "状", "顯": "显", "換": "换", "銀": "银", "祕": "秘", "鬧": "闹", "稱": "称", "設": "设", "閉": "闭", "蓋": "盖", "寫": "写", "爲": "为", "斷": "断", "擠": "挤", "嶺": "岭", "繼": "继", "佈": "布", "筆": "笔", "賣": "卖", "徵": "征", "電": "电", "結": "结", "滾": "滚", "見": "见", "採": "采", "應": "应", "個": "个", "錄": "录", "顆": "颗", "隨": "随", "順": "顺", "佔": "占", "籤": "签", "號": "号", "剛": "刚", "寬": "宽", "還": "还", "尋": "寻", "補": "补", "樂": "乐", "體": "体", "費": "费", "擇": "择", "長": "长", "規": "规", "暫": "暂", "過": "过", "請": "请", "纔": "才", "護": "护", "丟": "丢", "製": "制", "議": "议", "贏": "赢", "鬥": "斗", "種": "种", "區": "区", "庫": "库", "蠱": "蛊", "錯": "错", "亂": "乱", "貼": "贴", "雙": "双", "嗎": "吗", "認": "认", "籌": "筹", "獎": "奖", "陣": "阵", "戲": "戏", "兩": "两", "牽": "牵", "豐": "丰", "記": "记", "讀": "读", "決": "决", "徑": "径", "帳": "帐", "盤": "盘", "態": "态", "會": "会", "頂": "顶", "硯": "砚", "漸": "渐", "類": "类", "選": "选", "對": "对", "邊": "边", "準": "准", "別": "别", "統": "统", "樣": "样", "羅": "罗", "腦": "脑", "檔": "档", "時": "时", "驅": "驱", "攤": "摊", "嵐": "岚", "現": "现", "壓": "压", "擲": "掷", "蘭": "兰", "變": "变", "齊": "齐", "試": "试", "與": "与", "買": "买", "額": "额", "幾": "几", "脈": "脉", "專": "专", "夠": "够", "淺": "浅", "欄": "栏", "場": "场", "風": "风", "縮": "缩", "須": "须", "經": "经", "鋪": "铺", "盜": "盗", "搶": "抢", "陰": "阴", "將": "将", "條": "条", "續": "续", "優": "优", "戰": "战", "競": "竞", "燒": "烧", "羣": "群", "說": "说", "動": "动", "錢": "钱", "蔘": "参", "紋": "纹", "頭": "头", "無": "无", "備": "备", "圖": "图", "碼": "码", "曉": "晓", "點": "点", "獲": "获", "問": "问", "貨": "货", "刪": "删", "環": "环", "礦": "矿", "價": "价", "週": "周", "餘": "余", "數": "数", "湊": "凑", "簡": "简", "層": "层", "總": "总", "項": "项", "輪": "轮", "顧": "顾", "約": "约", "較": "较", "謝": "谢", "遊": "游", "則": "则", "識": "识", "擁": "拥", "撲": "扑", "廟": "庙", "雲": "云", "財": "财", "麼": "么", "擋": "挡", "內": "内", "張": "张", "單": "单"};
 const LANG = (() => { try { return localStorage.getItem('cdl_lang') || 'hant'; } catch (e) { return 'hant'; } })();
 const toS = t => { let o = ''; for (const ch of t) o += T2S[ch] || ch; return o; };
 function convTree(n) { if (LANG !== 'hans' || !n) return;
