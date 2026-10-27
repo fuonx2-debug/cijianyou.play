@@ -856,6 +856,37 @@ body.lowfx .luslot.me .fcard { animation: none !important; }
 .ldbar { height: 10px; border-radius: 999px; background: rgba(255,255,255,.12); overflow: hidden; border: 1px solid rgba(255,255,255,.25); }
 .ldbar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #8fb6ff, #ffffff); border-radius: 999px; transition: width .2s; }
 .ldn { color: #cfd6e6; font-size: 14px; }
+
+/* 加載畫面 v2：米色線稿 + 三三推青花進度條 */
+.loading { background: #f4ecdc !important; overflow: hidden; }
+.ldscene { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ldbox { position: relative; z-index: 1; width: min(560px, 76vw) !important; gap: 10px !important; margin-top: -6vh; }
+.ldlogo { display: grid; justify-items: center; gap: 2px; min-height: 120px; }
+.ldlogo img { opacity: 0; transition: opacity .6s; } .ldlogo img.in { opacity: 1; }
+.ldlogo img:first-child { width: min(300px, 50vw); } .ldlogo img:last-child { width: min(240px, 40vw); }
+.ldtrack { position: relative; padding-top: 52px; }
+.ldbar { height: 22px !important; border-radius: 999px !important; background: linear-gradient(#ffffff, #eef1f6) !important; border: 2px solid #2b4d8c !important; box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 4px rgba(43,77,140,.35), 0 3px 0 rgba(138,106,72,.25) !important; overflow: hidden; }
+.ldbar i { height: 100%; border-radius: 999px; transition: width .25s ease-out !important; background: radial-gradient(circle, #ffffff 0 2.2px, transparent 2.8px) 0 0 / 14px 14px, repeating-linear-gradient(90deg, transparent 0 13px, rgba(255,255,255,.35) 13px 14px), linear-gradient(#3463b3, #1f4790) !important; }
+.ldcatw { position: absolute; top: 0; left: 0; width: 82px; transform: translateX(-74%); transition: left .25s ease-out; }
+.ldcat { width: 100%; display: block; }
+.ldcat .lgA { animation: lgstep .42s ease-in-out infinite alternate; transform-origin: 60px 58px; }
+.ldcat .lgB { animation: lgstep .42s ease-in-out infinite alternate-reverse; transform-origin: 60px 58px; }
+.ldcat .head { animation: hbob .42s ease-in-out infinite alternate; }
+@keyframes lgstep { from { transform: rotate(-7deg); } to { transform: rotate(7deg); } }
+@keyframes hbob { to { transform: translateY(1.5px); } }
+.ldcatw.done .lgA, .ldcatw.done .lgB, .ldcatw.done .head { animation: none; }
+.ldcatw.done .tail { animation: wag .3s ease-in-out 3 alternate; transform-origin: 28px 50px; }
+@keyframes wag { to { transform: rotate(-18deg); } }
+.ldn { color: #6b4a2b !important; font-size: 15px !important; font-weight: 600; }
+@media (max-height: 520px) { .ldlogo { min-height: 70px; } .ldlogo img:first-child { width: 180px; } .ldlogo img:last-child { width: 140px; } .ldtrack { padding-top: 40px; } .ldcatw { width: 62px; } }
+
+.ldscene g { opacity: .8; }
+.ldtrack { padding-top: 0 !important; margin-top: 30px; }
+.ldcatw { top: -40px !important; width: 96px !important; transform: translateX(-88%) !important; z-index: 2; }
+@media (max-height: 520px) { .ldcatw { width: 70px !important; top: -28px !important; } .ldtrack { margin-top: 22px; } }
+
+.ldcatw { top: -60px !important; width: 124px !important; transform: translateX(-86%) !important; }
+@media (max-height: 520px) { .ldcatw { width: 84px !important; top: -40px !important; } }
 </style>
 
 <div id="app"></div>
@@ -1974,7 +2005,7 @@ addEventListener('pointerdown', () => { if (SET.music) Music.start(); }, { once:
 
 function fitCards(root) { (root || document).querySelectorAll('.fcard .ftx').forEach(t => { if (!t.offsetHeight) return; t.style.fontSize = ''; let f = 100; while (t.scrollHeight > t.clientHeight + 1 && f > 55) { f -= 5; t.style.fontSize = f + '%'; } }); }
 // ---------- 簡繁切換：頁面本身是繁體，選簡體時逐字轉換 ----------
-const T2S = {"盤": "盘", "顯": "显", "裏": "里", "寬": "宽", "應": "应", "陣": "阵", "贏": "赢", "種": "种", "緊": "紧", "紅": "红", "脈": "脉", "讓": "让", "礦": "矿", "採": "采", "賣": "卖", "籤": "签", "搶": "抢", "將": "将", "與": "与", "點": "点", "蘭": "兰", "貼": "贴", "環": "环", "豐": "丰", "佈": "布", "轉": "转", "嗎": "吗", "財": "财", "獲": "获", "餘": "余", "藍": "蓝", "專": "专", "腦": "脑", "祕": "秘", "撲": "扑", "湊": "凑", "減": "减", "長": "长", "給": "给", "經": "经", "擲": "掷", "買": "买", "蠱": "蛊", "間": "间", "試": "试", "欄": "栏", "兩": "两", "別": "别", "過": "过", "鄰": "邻", "廟": "庙", "態": "态", "滾": "滚", "斷": "断", "撐": "撑", "壓": "压", "暫": "暂", "戲": "戏", "無": "无", "淺": "浅", "頭": "头", "蔘": "参", "尋": "寻", "爲": "为", "雲": "云", "統": "统", "個": "个", "輪": "轮", "滿": "满", "調": "调", "時": "时", "變": "变", "項": "项", "續": "续", "換": "换", "擠": "挤", "機": "机", "動": "动", "標": "标", "總": "总", "盜": "盗", "製": "制", "獎": "奖", "區": "区", "細": "细", "產": "产", "麼": "么", "設": "设", "畫": "画", "認": "认", "樂": "乐", "顧": "顾", "週": "周", "預": "预", "亂": "乱", "驅": "驱", "內": "内", "橫": "横", "現": "现", "擁": "拥", "徵": "征", "繼": "继", "筆": "笔", "攤": "摊", "鏡": "镜", "場": "场", "鈕": "钮", "須": "须", "會": "会", "稱": "称", "刪": "删", "鬧": "闹", "燒": "烧", "頁": "页", "貿": "贸", "準": "准", "護": "护", "觸": "触", "額": "额", "錯": "错", "補": "补", "頂": "顶", "識": "识", "選": "选", "樣": "样", "領": "领", "屬": "属", "學": "学", "窯": "窑", "決": "决", "幾": "几", "載": "载", "鬥": "斗", "讀": "读", "對": "对", "硯": "砚", "沒": "没", "剛": "刚", "順": "顺", "徑": "径", "錄": "录", "進": "进", "線": "线", "請": "请", "庫": "库", "層": "层", "風": "风", "開": "开", "並": "并", "帳": "帐", "體": "体", "曉": "晓", "這": "这", "佔": "占", "顆": "颗", "還": "还", "謝": "谢", "記": "记", "隻": "只", "價": "价", "駐": "驻", "類": "类", "擇": "择", "擋": "挡", "見": "见", "費": "费", "議": "议", "較": "较", "約": "约", "確": "确", "帶": "带", "籌": "筹", "競": "竞", "錢": "钱", "檔": "档", "牽": "牵", "蓋": "盖", "纔": "才", "紋": "纹", "簡": "简", "鋪": "铺", "漸": "渐", "嵐": "岚", "響": "响", "邊": "边", "縮": "缩", "誰": "谁", "狀": "状", "貨": "货", "碼": "码", "號": "号", "隨": "随", "齊": "齐", "發": "发", "雙": "双", "從": "从", "結": "结", "勝": "胜", "備": "备", "羣": "群", "來": "来", "陰": "阴", "條": "条", "電": "电", "說": "说", "張": "张", "寫": "写", "關": "关", "後": "后", "數": "数", "濾": "滤", "問": "问", "丟": "丢", "單": "单", "銀": "银", "戰": "战", "嶺": "岭", "夠": "够", "規": "规", "羅": "罗", "圖": "图", "則": "则", "側": "侧", "遊": "游", "優": "优", "閉": "闭"};
+const T2S = {"徵": "征", "撐": "撑", "嵐": "岚", "減": "减", "選": "选", "簡": "简", "紅": "红", "羅": "罗", "個": "个", "寫": "写", "麼": "么", "從": "从", "額": "额", "顆": "颗", "陰": "阴", "無": "无", "條": "条", "齊": "齐", "層": "层", "嗎": "吗", "對": "对", "橫": "横", "單": "单", "錢": "钱", "將": "将", "鬥": "斗", "牽": "牵", "貼": "贴", "這": "这", "決": "决", "祕": "秘", "問": "问", "過": "过", "動": "动", "備": "备", "擠": "挤", "換": "换", "項": "项", "擋": "挡", "樣": "样", "亂": "乱", "籌": "筹", "領": "领", "獎": "奖", "窯": "窑", "餘": "余", "錯": "错", "預": "预", "緊": "紧", "費": "费", "進": "进", "圖": "图", "別": "别", "刪": "删", "輪": "轮", "狀": "状", "陣": "阵", "隨": "随", "濾": "滤", "後": "后", "時": "时", "獲": "获", "硯": "砚", "藍": "蓝", "丟": "丢", "駐": "驻", "統": "统", "謝": "谢", "讀": "读", "帳": "帐", "盤": "盘", "議": "议", "買": "买", "鏡": "镜", "產": "产", "風": "风", "種": "种", "湊": "凑", "隻": "只", "籤": "签", "貨": "货", "識": "识", "細": "细", "戲": "戏", "纔": "才", "嶺": "岭", "頭": "头", "賣": "卖", "寬": "宽", "設": "设", "銀": "银", "鄰": "邻", "來": "来", "贏": "赢", "壓": "压", "爲": "为", "撲": "扑", "順": "顺", "間": "间", "蘭": "兰", "號": "号", "燒": "烧", "頂": "顶", "縮": "缩", "頁": "页", "徑": "径", "會": "会", "誰": "谁", "鋪": "铺", "筆": "笔", "數": "数", "類": "类", "紋": "纹", "總": "总", "兩": "两", "應": "应", "佔": "占", "準": "准", "說": "说", "盜": "盗", "製": "制", "驅": "驱", "鈕": "钮", "雲": "云", "搶": "抢", "鬧": "闹", "試": "试", "閉": "闭", "競": "竞", "財": "财", "勝": "胜", "與": "与", "屬": "属", "態": "态", "顧": "顾", "蓋": "盖", "帶": "带", "護": "护", "長": "长", "曉": "晓", "錄": "录", "脈": "脉", "體": "体", "繼": "继", "幾": "几", "黃": "黄", "檔": "档", "區": "区", "見": "见", "蔘": "参", "標": "标", "淺": "浅", "滿": "满", "斷": "断", "羣": "群", "尋": "寻", "張": "张", "優": "优", "擲": "掷", "規": "规", "須": "须", "專": "专", "認": "认", "機": "机", "畫": "画", "漸": "渐", "剛": "刚", "約": "约", "沒": "没", "夠": "够", "轉": "转", "現": "现", "顯": "显", "補": "补", "響": "响", "結": "结", "貿": "贸", "給": "给", "採": "采", "開": "开", "側": "侧", "較": "较", "碼": "码", "樂": "乐", "價": "价", "點": "点", "戰": "战", "遊": "游", "庫": "库", "調": "调", "滾": "滚", "確": "确", "發": "发", "廟": "庙", "腦": "脑", "並": "并", "電": "电", "學": "学", "關": "关", "線": "线", "觸": "触", "請": "请", "稱": "称", "擁": "拥", "異": "异", "則": "则", "週": "周", "佈": "布", "攤": "摊", "場": "场", "內": "内", "邊": "边", "暫": "暂", "記": "记", "經": "经", "還": "还", "續": "续", "讓": "让", "礦": "矿", "環": "环", "變": "变", "蠱": "蛊", "雙": "双", "欄": "栏", "豐": "丰", "裏": "里", "擇": "择", "載": "载"};
 const LANG = (() => { try { return localStorage.getItem('cdl_lang') || 'hant'; } catch (e) { return 'hant'; } })();
 const toS = t => { let o = ''; for (const ch of t) o += T2S[ch] || ch; return o; };
 function convTree(n) { if (LANG !== 'hans' || !n) return;
@@ -2061,11 +2092,40 @@ const PRELOAD = ['town', 'banner', 'cups', 'dice', 'logo_cjy', 'logo_cdd', 'ch_c
   ...['any', 'dock', 'fortune', 'lucky', 'market', 'prank', 'shop', 'shrine', 'start', 'tai', 'wen', 'you'].map(t => 'tile_' + t)].map(n => `assets/${n}.webp`)
   .concat(['k_btn', 'k_btn_fill', 'k_chip', 'k_div', 'k_panel', 'caustic', 'cloud', 'cloud_dark', 'water_town', 'water_factory'].map(n => `assets/${n}.png`));
 const KEEP = [];
+function sceneSVG() {
+  const roof = (x, y, w, h) => { let t = ''; for (let k = 1; k < 7; k++) { const xx = x + w * .14 + (w * .72) * k / 7; t += `M${xx} ${y - h + 3} L${xx + (k - 3.5) * 2} ${y - 3}`; }
+    return `<path d="M${x - 16} ${y + 2} Q${x + w * .06} ${y - 2} ${x + w * .14} ${y - h} L${x + w * .86} ${y - h} Q${x + w * .94} ${y - 2} ${x + w + 16} ${y + 2}"/><path d="M${x + w * .1} ${y - h - 6} H${x + w * .9}" stroke-width="3"/><path d="${t}" opacity=".5" stroke-width="1.6"/>
+      <path d="M${x} ${y} V${y + h * 2.4} H${x + w} V${y}"/><path d="M${x + w * .4} ${y + h * 2.4} V${y + h * 1.2} H${x + w * .6} V${y + h * 2.4}"/><path d="M${x + w * .12} ${y + h * .7} h${w * .16} v${h * .6} h-${w * .16} Z M${x + w * .72} ${y + h * .7} h${w * .16} v${h * .6} h-${w * .16} Z" stroke-width="1.8"/>`; };
+  const cloud = (x, y, k) => `<path transform="translate(${x} ${y}) scale(${k})" d="M0 0 C-14 0 -16 -20 0 -20 C2 -36 30 -38 36 -22 C44 -34 70 -28 64 -10 C78 -10 80 6 66 8 L2 8 M14 -6 c0 -8 12 -8 12 0 c0 5 -7 5 -7 0 M44 -8 c0 -6 9 -6 9 0 c0 4 -5 4 -5 0" stroke-width="2"/>`;
+  const pot = (x, y, k) => `<path transform="translate(${x} ${y}) scale(${k})" d="M-8 -40 h16 M-6 -40 C-6 -32 -20 -30 -20 -14 C-20 0 -10 4 0 4 C10 4 20 0 20 -14 C20 -30 6 -32 6 -40 M-14 -22 C-6 -18 6 -18 14 -22" stroke-width="2"/>`;
+  return `<svg class="ldscene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="none" stroke="#8a6a48" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0 430 C140 340 250 370 380 300 S620 250 770 330 S1010 250 1160 300 S1420 250 1600 330" opacity=".45"/>
+    <path d="M0 500 C200 440 330 470 480 430 S760 400 900 450 S1200 400 1350 440 S1520 430 1600 450" opacity=".35"/>
+    ${cloud(200, 160, 1.6)}${cloud(1220, 130, 1.3)}${cloud(980, 230, .9)}${cloud(420, 250, .8)}
+    ${roof(80, 560, 200, 34)}${roof(320, 515, 160, 30)}${roof(1010, 600, 150, 30)}
+    <path d="M1180 690 C1180 520 1420 520 1420 690"/><path d="M1270 690 C1270 640 1330 640 1330 690"/><path d="M1205 620 C1260 600 1340 600 1395 620 M1192 655 C1260 640 1340 640 1408 655" stroke-width="1.8"/>
+    <path d="M1450 690 L1462 400 L1494 400 L1506 690 M1460 440 H1496" /><path d="M1478 390 C1470 360 1500 350 1490 320 C1484 300 1508 290 1500 270" opacity=".55"/>
+    <path d="M520 690 C560 640 640 640 680 690 M540 690 V660 M660 690 V660" opacity=".7"/>
+    <path d="M0 690 H1600"/><path d="M0 760 C300 730 600 790 900 760 S1400 730 1600 760" opacity=".4"/>
+    ${pot(170, 686, 1.2)}${pot(232, 686, .9)}${pot(760, 686, 1)}${pot(1110, 686, 1.1)}${pot(1565, 686, 1)}
+  </g></svg>`;
+}
+function catSVG() { // 三三：一黃一藍的異色眼
+  return `<svg class="ldcat" viewBox="0 0 130 84" aria-hidden="true"><ellipse cx="62" cy="80" rx="44" ry="4" fill="#8a6a48" opacity=".25"/>
+    <g fill="#1d1b20"><g class="lgB"><rect x="34" y="56" width="8" height="22" rx="4"/><rect x="72" y="56" width="8" height="22" rx="4"/></g>
+    <path class="tail" d="M28 50 C10 46 6 24 18 16" fill="none" stroke="#1d1b20" stroke-width="7" stroke-linecap="round"/>
+    <ellipse cx="56" cy="50" rx="32" ry="17"/>
+    <g class="lgA"><rect x="44" y="56" width="8" height="22" rx="4"/><rect x="84" y="54" width="8" height="22" rx="4" transform="rotate(-28 88 56)"/></g>
+    <g class="head"><circle cx="96" cy="40" r="16"/><path d="M84 30 L86 14 L96 26 Z M98 25 L110 14 L110 32 Z"/>
+    <ellipse cx="96" cy="38" rx="3.6" ry="4.2" fill="#f2c230"/><ellipse cx="106" cy="38" rx="3.6" ry="4.2" fill="#5aa9e6"/><ellipse cx="96.6" cy="38.4" rx="1.3" ry="2.6" fill="#111"/><ellipse cx="106.6" cy="38.4" rx="1.3" ry="2.6" fill="#111"/>
+    <path d="M100 45 l2.4 2 l2.4 -2 Z" fill="#e8a0a8"/></g></g></svg>`;
+}
 function boot() {
-  $('#app').innerHTML = `<div class="loading"><div class="ldbox"><div class="ldt">瓷間游・瓷都大亂鬥</div><div class="ldbar"><i id="ldfill"></i></div><div class="ldn" id="ldn">正在準備瓷都… 0%</div></div></div>`;
+  $('#app').innerHTML = `<div class="loading">${sceneSVG()}<div class="ldbox"><div class="ldlogo"><img src="assets/logo_cjy.webp" alt="瓷間游" onload="this.classList.add('in')"><img src="assets/logo_cdd.webp" alt="瓷都大亂鬥" onload="this.classList.add('in')"></div>
+    <div class="ldtrack"><div class="ldbar"><i id="ldfill"></i></div><div class="ldcatw" id="ldcat">${catSVG()}</div></div><div class="ldn" id="ldn">正在準備瓷都… 0%</div></div></div>`;
   let done = 0; const N = PRELOAD.length; let finished = false;
-  const tick = () => { done++; const pc = Math.round(done / N * 100); const f = $('#ldfill'); if (f) f.style.width = pc + '%'; const t = $('#ldn'); if (t) t.textContent = `正在準備瓷都… ${pc}%`; if (done >= N) finish(); };
-  const finish = () => { if (finished) return; finished = true; setTimeout(renderSetup, 200); };
+  const tick = () => { done++; const pc = Math.round(done / N * 100); const f = $('#ldfill'); if (f) f.style.width = pc + '%'; const c = $('#ldcat'); if (c) c.style.left = pc + '%'; const t = $('#ldn'); if (t) t.textContent = `正在準備瓷都… ${pc}%`; if (done >= N) finish(); };
+  const finish = () => { if (finished) return; finished = true; const c = $('#ldcat'); if (c) c.classList.add('done'); setTimeout(renderSetup, 900); };
   PRELOAD.forEach(src => { const im = new Image(); im.decoding = 'async'; im.src = src; KEEP.push(im); (im.decode ? im.decode() : new Promise((r, j) => { im.onload = r; im.onerror = j; })).then(tick, tick); });
   setTimeout(finish, 15000);
 }
