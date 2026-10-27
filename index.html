@@ -849,6 +849,13 @@ body { font-size: 15px; -webkit-font-smoothing: antialiased; }
 body.lowfx .world .fx, body.lowfx .motes, body.lowfx .hfx { display: none !important; }
 body.lowfx .hl, body.lowfx .hlogo1, body.lowfx .hlogo2, body.lowfx .rk2.act .avw img, body.lowfx .rollbtn2, body.lowfx .slot.go { animation: none !important; }
 body.lowfx .luslot.me .fcard { animation: none !important; }
+
+.loading { position: fixed; inset: 0; display: grid; place-items: center; background: radial-gradient(ellipse at 50% 40%, #1d2b4a, #0b1020 70%); z-index: 999; }
+.ldbox { width: min(420px, 80vw); display: grid; gap: 14px; text-align: center; }
+.ldt { font-family: var(--display); font-weight: 900; font-size: 28px; letter-spacing: .2em; color: #f2dfa8; }
+.ldbar { height: 10px; border-radius: 999px; background: rgba(255,255,255,.12); overflow: hidden; border: 1px solid rgba(255,255,255,.25); }
+.ldbar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #8fb6ff, #ffffff); border-radius: 999px; transition: width .2s; }
+.ldn { color: #cfd6e6; font-size: 14px; }
 </style>
 
 <div id="app"></div>
@@ -1582,7 +1589,7 @@ function renderLineup() {
     <div class="luskills"><span class="ttl">你的技能</span>${SETUP.ex.concat(SETUP.ge).map(k => cardHTML(k)).join('')}<span class="hint">AI 的技能保密</span></div>
     <div class="scrfoot"><button class="btn" id="lBack">重新抽</button><button class="btn gold" id="lGo">進入瓷都</button></div></div>`;
   $('#lBack').onclick = () => { SETUP.c = null; SETUP.ex = []; SETUP.ge = []; renderDraw(); };
-  $('#lGo').onclick = startGame;
+  $('#lGo').onclick = () => { $('#ov').innerHTML = '<div class="overlay"><div class="ldn" style="font-size:18px;color:#f2dfa8">進入瓷都…</div></div>'; requestAnimationFrame(() => setTimeout(() => { $('#ov').innerHTML = ''; startGame(); }, 0)); };
 }
 function startGame() {
   const others = SETUP.others && SETUP.others.length === SETUP.n - 1 ? SETUP.others : E.CHARS.filter(x => x !== SETUP.c).sort(() => Math.random() - .5).slice(0, SETUP.n - 1);
@@ -1707,13 +1714,13 @@ function renderBoard() {
 function slotsFor(round, ev) { const n = G.n, SL = R.slots; let s = SL === 'alt' ? (round % 2 ? Math.ceil(n / 2) : Math.floor(n / 2)) : SL === 'half' ? Math.ceil(n / 2) : SL === 'halfdown' ? Math.floor(n / 2) : n - 1;
   if (ev === 'e_huowang') s++; if (ev === 'e_fengyao') s--; return Math.max(R.minSlots, s); }
 function placeTokens(hopIdx) {
-  const b = $('#board'); if (!b || !VS) return; const u = b.clientWidth / 100;
+  const b = $('#board'); if (!b || !VS) return; const BW = b.clientWidth, BH = b.clientHeight; const u = BW / 100;
   const groups = {}; VS.snap.forEach((s, i) => { (groups[s.pos] = groups[s.pos] || []).push(i); });
   for (const [pos, list] of Object.entries(groups)) {
     const p = MAPPOS[pos]; if (!p) continue; const ts = Math.max(18, u * 3.1);
     list.forEach((i, k) => { const tk = b.querySelector(`[data-tok="${i}"]`); if (!tk) return;
       const n = list.length; const dx = (k - (n - 1) / 2) * ts * .55;
-      const x = p[0] * u + dx - ts / 2; const y = p[1] / 100 * b.clientHeight - ts * 1.25 - (k % 2) * ts * .18;
+      const x = p[0] * u + dx - ts / 2; const y = p[1] / 100 * BH - ts * 1.25 - (k % 2) * ts * .18;
       tk.style.setProperty('--ts', ts + 'px'); tk.style.left = x + 'px'; tk.style.top = y + 'px'; tk.style.zIndex = 5 + Math.round(p[1]);
       if (hopIdx === i) { tk.classList.remove('hop'); void tk.offsetWidth; tk.classList.add('hop'); } });
   }
@@ -1967,7 +1974,7 @@ addEventListener('pointerdown', () => { if (SET.music) Music.start(); }, { once:
 
 function fitCards(root) { (root || document).querySelectorAll('.fcard .ftx').forEach(t => { if (!t.offsetHeight) return; t.style.fontSize = ''; let f = 100; while (t.scrollHeight > t.clientHeight + 1 && f > 55) { f -= 5; t.style.fontSize = f + '%'; } }); }
 // ---------- 簡繁切換：頁面本身是繁體，選簡體時逐字轉換 ----------
-const T2S = {"鬥": "斗", "鄰": "邻", "蔘": "参", "撲": "扑", "體": "体", "樣": "样", "陣": "阵", "紅": "红", "產": "产", "頂": "顶", "腦": "脑", "盤": "盘", "單": "单", "暫": "暂", "遊": "游", "選": "选", "贏": "赢", "買": "买", "蓋": "盖", "變": "变", "滿": "满", "準": "准", "結": "结", "兩": "两", "佔": "占", "畫": "画", "週": "周", "數": "数", "滾": "滚", "爲": "为", "豐": "丰", "換": "换", "費": "费", "間": "间", "條": "条", "電": "电", "統": "统", "蠱": "蛊", "護": "护", "簡": "简", "陰": "阴", "觸": "触", "財": "财", "淺": "浅", "別": "别", "試": "试", "欄": "栏", "齊": "齐", "剛": "刚", "撐": "撑", "採": "采", "須": "须", "緊": "紧", "關": "关", "筆": "笔", "雲": "云", "進": "进", "問": "问", "鋪": "铺", "環": "环", "牽": "牵", "沒": "没", "寫": "写", "見": "见", "個": "个", "備": "备", "縮": "缩", "將": "将", "場": "场", "優": "优", "會": "会", "硯": "砚", "經": "经", "競": "竞", "貨": "货", "並": "并", "擁": "拥", "減": "减", "戲": "戏", "窯": "窑", "盜": "盗", "湊": "凑", "漸": "渐", "幾": "几", "過": "过", "佈": "布", "嗎": "吗", "濾": "滤", "態": "态", "說": "说", "無": "无", "錄": "录", "銀": "银", "尋": "寻", "現": "现", "規": "规", "點": "点", "開": "开", "貼": "贴", "記": "记", "這": "这", "擋": "挡", "貿": "贸", "狀": "状", "纔": "才", "繼": "继", "給": "给", "頁": "页", "標": "标", "賣": "卖", "識": "识", "讓": "让", "錯": "错", "顯": "显", "藍": "蓝", "來": "来", "閉": "闭", "機": "机", "徑": "径", "發": "发", "製": "制", "張": "张", "讀": "读", "約": "约", "隻": "只", "側": "侧", "響": "响", "裏": "里", "寬": "宽", "應": "应", "蘭": "兰", "預": "预", "徵": "征", "議": "议", "餘": "余", "轉": "转", "顆": "颗", "較": "较", "麼": "么", "刪": "删", "決": "决", "設": "设", "勝": "胜", "順": "顺", "錢": "钱", "戰": "战", "還": "还", "搶": "抢", "駐": "驻", "專": "专", "補": "补", "擇": "择", "從": "从", "學": "学", "圖": "图", "嵐": "岚", "雙": "双", "斷": "断", "廟": "庙", "類": "类", "亂": "乱", "領": "领", "頭": "头", "曉": "晓", "層": "层", "區": "区", "庫": "库", "紋": "纹", "後": "后", "鈕": "钮", "檔": "档", "擲": "掷", "對": "对", "祕": "秘", "燒": "烧", "丟": "丢", "認": "认", "帶": "带", "壓": "压", "號": "号", "邊": "边", "礦": "矿", "稱": "称", "樂": "乐", "內": "内", "時": "时", "價": "价", "鬧": "闹", "風": "风", "帳": "帐", "獎": "奖", "顧": "顾", "項": "项", "隨": "随", "誰": "谁", "線": "线", "種": "种", "謝": "谢", "攤": "摊", "額": "额", "動": "动", "輪": "轮", "碼": "码", "羅": "罗", "驅": "驱", "橫": "横", "籤": "签", "則": "则", "鏡": "镜", "細": "细", "羣": "群", "請": "请", "獲": "获", "嶺": "岭", "長": "长", "總": "总", "確": "确", "脈": "脉", "屬": "属", "擠": "挤", "夠": "够", "籌": "筹", "與": "与", "調": "调", "續": "续"};
+const T2S = {"樂": "乐", "環": "环", "尋": "寻", "窯": "窑", "點": "点", "條": "条", "嶺": "岭", "層": "层", "樣": "样", "藍": "蓝", "礦": "矿", "進": "进", "議": "议", "鬧": "闹", "遊": "游", "沒": "没", "盜": "盗", "側": "侧", "頂": "顶", "擋": "挡", "硯": "砚", "時": "时", "頁": "页", "讓": "让", "領": "领", "撲": "扑", "統": "统", "約": "约", "縮": "缩", "稱": "称", "與": "与", "結": "结", "響": "响", "顯": "显", "齊": "齐", "記": "记", "雙": "双", "場": "场", "獲": "获", "擇": "择", "確": "确", "細": "细", "號": "号", "風": "风", "標": "标", "紋": "纹", "還": "还", "給": "给", "較": "较", "設": "设", "順": "顺", "幾": "几", "無": "无", "羣": "群", "種": "种", "見": "见", "現": "现", "優": "优", "產": "产", "牽": "牵", "頭": "头", "廟": "庙", "蔘": "参", "濾": "滤", "識": "识", "銀": "银", "規": "规", "紅": "红", "買": "买", "盤": "盘", "續": "续", "減": "减", "寫": "写", "機": "机", "攤": "摊", "筆": "笔", "錄": "录", "備": "备", "讀": "读", "載": "载", "嵐": "岚", "張": "张", "橫": "横", "羅": "罗", "碼": "码", "餘": "余", "麼": "么", "誰": "谁", "閉": "闭", "長": "长", "總": "总", "變": "变", "徑": "径", "認": "认", "雲": "云", "圖": "图", "間": "间", "丟": "丢", "鈕": "钮", "搶": "抢", "腦": "脑", "額": "额", "護": "护", "蘭": "兰", "專": "专", "過": "过", "佔": "占", "簡": "简", "調": "调", "補": "补", "貼": "贴", "競": "竞", "刪": "删", "壓": "压", "寬": "宽", "擲": "掷", "徵": "征", "剛": "刚", "嗎": "吗", "夠": "够", "曉": "晓", "試": "试", "則": "则", "驅": "驱", "內": "内", "隨": "随", "獎": "奖", "賣": "卖", "檔": "档", "對": "对", "顧": "顾", "經": "经", "屬": "属", "贏": "赢", "帳": "帐", "欄": "栏", "祕": "秘", "狀": "状", "預": "预", "應": "应", "換": "换", "蠱": "蛊", "錯": "错", "擁": "拥", "顆": "颗", "燒": "烧", "鄰": "邻", "須": "须", "決": "决", "這": "这", "從": "从", "豐": "丰", "製": "制", "貨": "货", "請": "请", "陣": "阵", "電": "电", "態": "态", "駐": "驻", "單": "单", "勝": "胜", "說": "说", "滾": "滚", "鋪": "铺", "裏": "里", "庫": "库", "戰": "战", "繼": "继", "採": "采", "陰": "阴", "撐": "撑", "纔": "才", "亂": "乱", "漸": "渐", "暫": "暂", "兩": "两", "爲": "为", "淺": "浅", "斷": "断", "籤": "签", "蓋": "盖", "將": "将", "並": "并", "週": "周", "滿": "满", "錢": "钱", "類": "类", "邊": "边", "發": "发", "會": "会", "鬥": "斗", "別": "别", "選": "选", "緊": "紧", "轉": "转", "籌": "筹", "帶": "带", "觸": "触", "學": "学", "貿": "贸", "線": "线", "鏡": "镜", "隻": "只", "脈": "脉", "湊": "凑", "數": "数", "擠": "挤", "體": "体", "佈": "布", "畫": "画", "財": "财", "開": "开", "戲": "戏", "區": "区", "後": "后", "輪": "轮", "項": "项", "關": "关", "價": "价", "個": "个", "問": "问", "來": "来", "謝": "谢", "準": "准", "動": "动", "費": "费"};
 const LANG = (() => { try { return localStorage.getItem('cdl_lang') || 'hant'; } catch (e) { return 'hant'; } })();
 const toS = t => { let o = ''; for (const ch of t) o += T2S[ch] || ch; return o; };
 function convTree(n) { if (LANG !== 'hans' || !n) return;
@@ -2047,5 +2054,20 @@ function showTutorial(i) {
   if ($('#tNext')) $('#tNext').onclick = () => showTutorial(i + 1); else $('#tDone').onclick = () => { $('#ov').innerHTML = ''; };
   $('#ov .overlay').onclick = e => { if (e.target.classList.contains('overlay')) $('#ov').innerHTML = ''; };
 }
-renderSetup();
+// ---------- 加載畫面：先把圖片下載並解碼好再進首頁 ----------
+const PRELOAD = ['town', 'banner', 'cups', 'dice', 'logo_cjy', 'logo_cdd', 'ch_cat', 'ch_cheng', 'ch_gu', 'ch_hu', 'ch_luo', 'ch_meng', 'ch_shen', 'ch_xie',
+  'card_back', 'card_frame', 'map_town', 'map_factory', 'map_town_thumb', 'map_factory_thumb', 'kiln_idle', 'kiln_fire', 'item_chip', 'item_silver', 'item_royal', 'item_ware',
+  ...E.CHARS.map(c => 'id_' + c), ...E.CHARS.map(c => 'av_' + c), 'av_cat', ...Object.keys(E.CARDNAME).map(k => 'card_' + k),
+  ...['any', 'dock', 'fortune', 'lucky', 'market', 'prank', 'shop', 'shrine', 'start', 'tai', 'wen', 'you'].map(t => 'tile_' + t)].map(n => `assets/${n}.webp`)
+  .concat(['k_btn', 'k_btn_fill', 'k_chip', 'k_div', 'k_panel', 'caustic', 'cloud', 'cloud_dark', 'water_town', 'water_factory'].map(n => `assets/${n}.png`));
+const KEEP = [];
+function boot() {
+  $('#app').innerHTML = `<div class="loading"><div class="ldbox"><div class="ldt">瓷間遊・瓷都大亂鬥</div><div class="ldbar"><i id="ldfill"></i></div><div class="ldn" id="ldn">正在準備瓷都… 0%</div></div></div>`;
+  let done = 0; const N = PRELOAD.length; let finished = false;
+  const tick = () => { done++; const pc = Math.round(done / N * 100); const f = $('#ldfill'); if (f) f.style.width = pc + '%'; const t = $('#ldn'); if (t) t.textContent = `正在準備瓷都… ${pc}%`; if (done >= N) finish(); };
+  const finish = () => { if (finished) return; finished = true; setTimeout(renderSetup, 200); };
+  PRELOAD.forEach(src => { const im = new Image(); im.decoding = 'async'; im.src = src; KEEP.push(im); (im.decode ? im.decode() : new Promise((r, j) => { im.onload = r; im.onerror = j; })).then(tick, tick); });
+  setTimeout(finish, 15000);
+}
+boot();
 </script>
