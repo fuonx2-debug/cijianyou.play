@@ -3,7 +3,7 @@
 <style>
 *{box-sizing:border-box}body{margin:0;background:#ede6d8;color:#514b40;font-family:system-ui,-apple-system,'Noto Sans TC',sans-serif;overflow:hidden}#world{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;touch-action:none}header{position:absolute;top:28px;left:32px;pointer-events:none}header small{font-size:10px;letter-spacing:.22em;color:#8b8273}h1{font-size:26px;letter-spacing:.16em;font-weight:550;margin:7px 0}header p{font-size:12px;margin:0;color:#8b8273}.controls{position:absolute;right:28px;top:28px;display:flex;gap:7px}button{border:1px solid #cfc6b4;background:#fcfaf1dd;color:#655d4e;border-radius:24px;font:inherit;font-size:12px;padding:10px 15px;cursor:pointer;backdrop-filter:blur(12px)}button:hover{background:#fffdf5}button[aria-pressed=true]{background:#69765d;color:#fff;border-color:#69765d}button:focus-visible{outline:3px solid #a67454;outline-offset:3px}footer{position:absolute;bottom:24px;left:32px;right:32px;display:flex;align-items:end;justify-content:space-between;gap:20px;pointer-events:none;font-size:11px;color:#8b8273}#info{background:#fffcf0d9;border:1px solid #ded5c3;padding:13px 18px;border-radius:12px;max-width:300px;color:#615b4d;backdrop-filter:blur(12px)}#info strong{display:block;color:#514b40;font-size:13px;margin-bottom:4px}.hint{line-height:1.9;text-align:right}#loading{position:absolute;inset:0;display:grid;place-content:center;text-align:center;background:#ede6d8;z-index:5;font-size:14px;line-height:2}#loading small{color:#948977}.spinner{height:38px;width:38px;border-radius:50%;border:2px solid #d5c9b3;border-top-color:#ad7355;margin:0 auto 20px;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@media(max-width:650px){header{top:18px;left:18px}header p{display:none}h1{font-size:21px}.controls{top:auto;bottom:20px;right:0;left:0;justify-content:center;flex-wrap:wrap}button{padding:9px 12px}footer{left:18px;right:18px;bottom:78px}.hint{display:none}#info{font-size:10px;padding:9px 12px;max-width:250px}header small{font-size:9px}}
 </style><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script></head>
-<body><div id="world"></div><header><small>CI JIAN YOU · SCENE STUDY 01</small><h1>瓷間遊 · 陶藝村</h1><p>陶藝村場景 · 材質與細節修訂中</p></header><nav class="controls" aria-label="場景控制"><button id="home">全景復位</button><button id="kiln">看陶窯</button><button id="river">看溪橋</button><button id="spin" aria-pressed="false">自動環繞</button><button id="quality" aria-pressed="false">省電模式</button></nav><footer><div id="info" role="status"><strong>先逛逛這座陶藝村</strong>點選地格查看用途；道路連接依照原版地圖。</div><div class="hint">拖曳旋轉 · 滾輪縮放 · 右鍵平移<br>手機：單指旋轉 · 雙指縮放與移動</div></footer><div id="loading"><div class="spinner"></div>正在捏製陶藝村…<small>載入三維場景與材質</small></div>
+<body><div id="world"></div><header><small>CI JIAN YOU · SCENE STUDY 01</small><h1>瓷間遊 · 陶藝村</h1><p>陶土質感研究 · 陶窯與屋瓦</p></header><nav class="controls" aria-label="場景控制"><button id="home">全景復位</button><button id="kiln">看陶窯</button><button id="river">看溪橋</button><button id="spin" aria-pressed="false">自動環繞</button><button id="quality" aria-pressed="false">省電模式</button></nav><footer><div id="info" role="status"><strong>先逛逛這座陶藝村</strong>點選地格查看用途；道路連接依照原版地圖。</div><div class="hint">拖曳旋轉 · 滾輪縮放 · 右鍵平移<br>手機：單指旋轉 · 雙指縮放與移動</div></footer><div id="loading"><div class="spinner"></div>正在捏製陶藝村…<small>載入三維場景與材質</small></div>
 <script>window.addEventListener('error',()=>{const l=document.querySelector('#loading');if(l&&l.style.display!=='none')l.innerHTML='場景載入失敗，請重新整理。<br><small>需要支援 WebGL 2，並能連線至 jsDelivr。</small>';});</script>
 <script type="module">
 import * as T from 'three';
@@ -17,27 +17,36 @@ import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {MAP4} from './map.js';
 const $=s=>document.querySelector(s), world=$('#world');
-const renderer=new T.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.VSMShadowMap;renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.22;world.appendChild(renderer.domElement);renderer.domElement.setAttribute('aria-label','可旋轉縮放的橡皮泥陶藝村三維場景');
-const scene=new T.Scene();const pmrem=new T.PMREMGenerator(renderer);const roomEnv=new RoomEnvironment();scene.environment=pmrem.fromScene(roomEnv,.04).texture;scene.environmentIntensity=.3;roomEnv.dispose();pmrem.dispose();scene.background=new T.Color('#ede6d8');scene.fog=new T.Fog('#ede6d8',160,260);
+const renderer=new T.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.VSMShadowMap;renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;world.appendChild(renderer.domElement);renderer.domElement.setAttribute('aria-label','可旋轉縮放的橡皮泥陶藝村三維場景');
+const scene=new T.Scene();const pmrem=new T.PMREMGenerator(renderer);const roomEnv=new RoomEnvironment();scene.environment=pmrem.fromScene(roomEnv,.04).texture;scene.environmentIntensity=.45;roomEnv.dispose();pmrem.dispose();scene.background=new T.Color('#ede6d8');scene.fog=new T.Fog('#ede6d8',160,260);
 const camera=new T.PerspectiveCamera(36,innerWidth/innerHeight,.1,300);const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.07;controls.minDistance=9;controls.maxDistance=140;controls.minPolarAngle=.18;controls.maxPolarAngle=Math.PI*.47;controls.autoRotateSpeed=.6;controls.target.set(0,0,0);
-const hemi=new T.HemisphereLight('#fff4dc','#685c46',1.7);scene.add(hemi);const sun=new T.DirectionalLight('#ffdfb5',3.0);sun.position.set(-10,19,8);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-22,right:22,top:22,bottom:-22,near:1,far:70});sun.shadow.normalBias=.035;sun.shadow.bias=-.00015;sun.shadow.radius=3;sun.shadow.blurSamples=8;scene.add(sun);const fill=new T.DirectionalLight('#dce9e8',.85);fill.position.set(13,12,-15);scene.add(fill);
+const hemi=new T.HemisphereLight('#fff4dc','#697383',.75);scene.add(hemi);const sun=new T.DirectionalLight('#ffe1bd',3.6);sun.position.set(-10,19,8);sun.castShadow=true;sun.shadow.mapSize.set(4096,4096);Object.assign(sun.shadow.camera,{left:-22,right:22,top:22,bottom:-22,near:1,far:70});sun.shadow.normalBias=.035;sun.shadow.bias=-.00015;sun.shadow.radius=3;sun.shadow.blurSamples=8;scene.add(sun);const fill=new T.DirectionalLight('#dce9e8',.45);fill.position.set(13,12,-15);scene.add(fill);
 let seed=421;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
 const textureCanvas=document.createElement('canvas');textureCanvas.width=textureCanvas.height=256;const ctx=textureCanvas.getContext('2d');ctx.fillStyle='#888';ctx.fillRect(0,0,256,256);for(let i=0;i<7000;i++){let v=rand()>.5?170:70;ctx.fillStyle=`rgba(${v},${v},${v},.18)`;ctx.beginPath();ctx.ellipse(rand()*256,rand()*256,rand()*2.5+.5,rand()*.7+.2,.7,0,7);ctx.fill();}const clay=new T.CanvasTexture(textureCanvas);clay.wrapS=clay.wrapT=T.RepeatWrapping;clay.repeat.set(3,3);
 // Multi-scale mottling and tool marks supply actual clay texture at close range.
-const surfaceCv=document.createElement('canvas');surfaceCv.width=surfaceCv.height=512;const sc=surfaceCv.getContext('2d');sc.fillStyle='#dfd6c7';sc.fillRect(0,0,512,512);
+const surfaceCv=document.createElement('canvas');surfaceCv.width=surfaceCv.height=512;const sc=surfaceCv.getContext('2d');sc.fillStyle='#f2eee7';sc.fillRect(0,0,512,512);
 for(let i=0;i<9000;i++){const v=rand()>.5?245:115;sc.fillStyle=`rgba(${v},${v-5},${v-10},${.015+rand()*.045})`;sc.beginPath();sc.ellipse(rand()*512,rand()*512,rand()*8+.5,rand()*3+.4,rand()*3,0,7);sc.fill();}
 for(let i=0;i<110;i++){const x=rand()*512,y=rand()*512;sc.strokeStyle='rgba(80,61,38,.12)';sc.lineWidth=.5+rand()*.7;sc.beginPath();sc.moveTo(x,y);sc.quadraticCurveTo(x+12,y+rand()*8,x+20+rand()*15,y+rand()*4);sc.stroke();}
-const surface=new T.CanvasTexture(surfaceCv);surface.colorSpace=T.SRGBColorSpace;surface.wrapS=surface.wrapT=T.RepeatWrapping;surface.repeat.set(2,2);
+const surface=new T.CanvasTexture(surfaceCv);surface.colorSpace=T.SRGBColorSpace;surface.wrapS=surface.wrapT=T.RepeatWrapping;surface.repeat.set(2,2);surface.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());clay.anisotropy=surface.anisotropy;
 const woodCv=document.createElement('canvas');woodCv.width=woodCv.height=256;const wc=woodCv.getContext('2d');wc.fillStyle='#dcc9ab';wc.fillRect(0,0,256,256);for(let i=0;i<150;i++){wc.strokeStyle=`rgba(75,47,22,${rand()*.17})`;wc.lineWidth=.5+rand();let y=rand()*256;wc.beginPath();wc.moveTo(0,y);wc.bezierCurveTo(80,y+rand()*12-6,160,y+rand()*12-6,256,y);wc.stroke();}const woodMap=new T.CanvasTexture(woodCv);woodMap.colorSpace=T.SRGBColorSpace;woodMap.wrapS=woodMap.wrapT=T.RepeatWrapping;
 const woodColors=new Set(['#9c7b54','#94704d','#9a754b','#94704c','#94704b','#a68255','#9a754a','#8d704b','#a38c61','#947450','#98734d','#a18256','#947147','#81694e','#94704c','#aa895e','#b79970','#98764e']);
-const mats=new Map(),geos=new Map();const baked=[];function material(c,glaze=false){const key=c+glaze;if(!mats.has(key))mats.set(key,new T.MeshStandardMaterial({color:c,roughness:glaze?.27:.94,metalness:0,map:glaze||c==='#ede6d8'?null:(woodColors.has(c)?woodMap:surface),bumpMap:c==='#ede6d8'?null:(woodColors.has(c)?woodMap:clay),bumpScale:glaze?.015:.11}));const m=mats.get(key);if(!glaze&&c!=='#ede6d8'&&!m.userData.clayShader){m.userData.clayShader=true;m.onBeforeCompile=shader=>{
+const mats=new Map(),geos=new Map();const baked=[];function material(c,glaze=false){const key=c+glaze;if(!mats.has(key))mats.set(key,new T.MeshStandardMaterial({color:c,roughness:glaze?.30:.83,metalness:0,map:glaze||c==='#ede6d8'?null:(woodColors.has(c)?woodMap:surface),bumpMap:c==='#ede6d8'?null:(woodColors.has(c)?woodMap:clay),bumpScale:glaze?.008:.045}));const m=mats.get(key);if(!glaze&&c!=='#ede6d8'&&!m.userData.clayShader){m.userData.clayShader=true;m.onBeforeCompile=shader=>{
  shader.vertexShader='varying vec3 clayPosition;\n'+shader.vertexShader;
  shader.vertexShader=shader.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nclayPosition=(modelMatrix*vec4(transformed,1.0)).xyz;');
  shader.fragmentShader=`varying vec3 clayPosition;
  float clayHash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
  float clayNoise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(mix(clayHash(i),clayHash(i+vec3(1,0,0)),f.x),mix(clayHash(i+vec3(0,1,0)),clayHash(i+vec3(1,1,0)),f.x),f.y),mix(mix(clayHash(i+vec3(0,0,1)),clayHash(i+vec3(1,0,1)),f.x),mix(clayHash(i+vec3(0,1,1)),clayHash(i+vec3(1,1,1)),f.x),f.y),f.z);}
  `+shader.fragmentShader;
- shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\ndiffuseColor.rgb*=0.82+0.21*clayNoise(clayPosition*4.0)+0.10*clayNoise(clayPosition*32.0);');
+ shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\ndiffuseColor.rgb*=0.91+0.10*clayNoise(clayPosition*3.0)+0.035*clayNoise(clayPosition*26.0);');
+ shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+ // World-scale shallow clay impressions: preserve a consistent grain across differently sized objects.
+ float clayHeight=0.014*clayNoise(clayPosition*13.0)+0.0025*clayNoise(clayPosition*67.0);
+ vec3 clayDx=dFdx(-vViewPosition),clayDy=dFdy(-vViewPosition);
+ vec3 clayR1=cross(clayDy,normal),clayR2=cross(normal,clayDx);
+ float clayDet=dot(clayDx,clayR1);
+ vec3 clayGrad=sign(clayDet)*(dFdx(clayHeight)*clayR1+dFdy(clayHeight)*clayR2);
+ normal=normalize(abs(clayDet)*normal-clayGrad);
+ `);
  };}return m;}
 function mesh(geo,c,pos=[0,0,0],scale=[1,1,1],parent=scene,glaze=false){const m=new T.Mesh(geo,material(c,glaze));m.position.set(...pos);m.scale.set(...scale);m.castShadow=m.receiveShadow=true;parent.add(m);baked.push(m);return m;}
 function handShape(g,strength=.04){const a=g.attributes.position;for(let i=0;i<a.count;i++){const x=a.getX(i),y=a.getY(i),z=a.getZ(i);const n=Math.sin(x*7+y*5+z*3)*Math.cos(y*9-z*4)*strength+Math.sin(x*15-z*10+y*2)*strength*.3;a.setXYZ(i,x*(1+n),y*(1+n*.7),z*(1+n));}g.computeVertexNormals();return g;}const sphere=handShape(new T.SphereGeometry(1,20,14),.045);const smallSphere=handShape(new T.SphereGeometry(1,10,8),.08);function blob(c,pos,scale,parent){return mesh(sphere,c,pos,scale,parent);}
@@ -75,28 +84,48 @@ Object.entries(MAP4).forEach(([id,t])=>{const n=parseInt(id),a=n/24*Math.PI*2+Ma
 // Preserve each directed edge from the original map, including its three forks.
 Object.entries(MAP4).forEach(([id,t])=>t.n.forEach(n=>{const a=coords[id].clone(),b=coords[n].clone(),d=b.clone().sub(a);for(let j=1;j<4;j++){const p=a.clone().lerp(b,j/4);blob('#b0a17b',[p.x,.065,p.z],[.065,.025,.065]);}}));
 // Kiln body: open-front arch, handmade brick rim, chimney and side working sheds.
-const kiln=group(-.6,.08,-.7);kiln.scale.setScalar(1.38);const dome=blob('#b9704e',[0,1.45,0],[2.05,1.75,1.7],kiln);cyl('#c48058',[0,2.55,-.25],.8,1.1,.65,kiln);cyl('#bd7753',[0,3.45,-.25],.47,.72,1.5,kiln);const rim=mesh(new T.TorusGeometry(.49,.115,10,24),'#bc7852',[0,4.21,-.25],[1,1,1],kiln);rim.rotation.x=Math.PI/2;cyl('#4d3a2e',[0,4.2,-.25],.4,.4,.015,kiln);
-blob('#533e30',[0,.95,1.48],[.84,1.05,.19],kiln);blob('#f0a85c',[0,.65,1.64],[.6,.6,.065],kiln);
-for(let i=0;i<11;i++){const a=i/10*Math.PI;const brick=box(i%2?'#d39366':'#c58459',[Math.cos(a)*.94,.45+Math.sin(a)*1.37,1.64],[.34,.4,.3],.065,kiln);brick.rotation.z=a-Math.PI/2;}
-for(const s of [-1,1])for(let j=0;j<2;j++)box('#c58c60',[s*.96,.2+j*.32,1.64],[.34,.3,.34],.04,kiln);
-for(let i=0;i<4;i++){const ring=mesh(new T.TorusGeometry(1.8-i*.12,.018,6,48),'#a56b4c',[0,.6+i*.43,0],[1,1,.86],kiln);ring.rotation.x=Math.PI/2;}
+const kiln=group(-.6,.08,-.7);kiln.scale.setScalar(1.38);
+// Sculpted kiln shell, with a real arched opening and inward-facing wall thickness.
+function kilnRadius(y){return 2.05*Math.sqrt(Math.max(.025,1-((y-1.25)/1.92)**2));}
+const kp=[],ku=[],ki=[],kn=112,kh=56;
+for(let side=0;side<2;side++)for(let j=0;j<=kh;j++){
+ const y=j/kh*2.98,r=kilnRadius(y)-side*.16;
+ const door=y<.95?.76:y<1.85?.76*Math.sqrt(1-((y-.95)/.9)**2):0;
+ const gap=Math.asin(Math.min(.95,door/r));
+ for(let i=0;i<=kn;i++){const a=gap+i/kn*(Math.PI*2-2*gap),w=.018*Math.sin(a*9+y*7)+.01*Math.sin(a*23-y*11);kp.push(Math.sin(a)*(r+w),y,Math.cos(a)*(r+w)*.83);ku.push(a/Math.PI,y*.5);
+ if(i<kn&&j<kh){const k=side*(kn+1)*(kh+1)+j*(kn+1)+i;side?ki.push(k,k+1,k+kn+1,k+1,k+kn+2,k+kn+1):ki.push(k,k+kn+1,k+1,k+1,k+kn+1,k+kn+2);}}
+}
+const kg=new T.BufferGeometry();kg.setAttribute('position',new T.Float32BufferAttribute(kp,3));kg.setAttribute('uv',new T.Float32BufferAttribute(ku,2));kg.setIndex(ki);kg.computeVertexNormals();mesh(kg,'#bd704c',[0,0,0],[1,1,1],kiln);
+// Fired clay chimney has an open lip and an interior bore.
+const chimneyProfile=[[.91,2.60],[.93,2.78],[.76,2.96],[.67,3.05],[.51,4.10],[.57,4.17],[.58,4.30],[.40,4.30],[.39,4.12],[.44,3.5]].map(p=>new T.Vector2(...p));
+mesh(handShape(new T.LatheGeometry(chimneyProfile,48),.018),'#bf7851',[0,0,-.25],[1,1,1],kiln);
+cyl('#392d24',[0,3.51,-.25],.43,.43,.02,kiln);
+box('#3c2b21',[0,.67,.35],[1.6,1.3,.2],.1,kiln);box('#71412a',[0,.10,1.25],[1.65,.2,1.4],.08,kiln);
+for(let i=0;i<13;i++){const a=i/12*Math.PI,x=Math.cos(a)*.91,y=.95+Math.sin(a)*.99;const brick=box(['#ca895a','#d49564','#bc784e'][i%3],[x,y,1.54],[.24,.33,.40],.055,kiln);brick.rotation.z=a-Math.PI/2;}
+for(const side of [-1,1])for(let j=0;j<3;j++)box(j%2?'#c88a5e':'#d09669',[side*.91,.18+j*.29,1.54],[.29,.27,.4],.045,kiln);
+// Worn, broken courses hug the actual dome instead of floating through it.
+for(let row=0;row<7;row++){const y=.30+row*.36,r=kilnRadius(y);for(let j=0;j<34;j++){const a=(j+(row%2)*.5)/34*Math.PI*2,x=Math.sin(a)*r,z=Math.cos(a)*r*.83;if(z>1&&Math.abs(x)<1.07&&y<2.05)continue;const mark=box('#a65e40',[x,y,z],[.29,.014,.018],.005,kiln);mark.rotation.y=a;if(j%3===0)beam([x,y,z],[x*.985,y+.14,z*.985],.009,'#a65e40',kiln);}}
 for(let i=0;i<4;i++)box('#c9ad88',[0,.08+i*.13,2.75-i*.28],[2.3,.16,.5],.06,kiln);
 function pot(x,y,z,s,c,parent=scene){const points=[[0,0],[.23,0],[.38,.18],[.42,.4],[.3,.62],[.2,.72],[.2,.83],[.25,.86]].map(([r,h])=>new T.Vector2(r,h));const geo=new T.LatheGeometry(points,18);const m=mesh(geo,c,[x,y,z],[s,s,s],parent,true);const r=mesh(new T.TorusGeometry(.225,.035,8,20),c,[x,y+.85*s,z],[s,s,s],parent,true);r.rotation.x=Math.PI/2;cyl('#655a43',[x,y+.80*s,z],.18*s,.18*s,.02,parent);
  if(c==='#d3c19e'||c==='#cec4a8'||c==='#c9d1bd'||c==='#ccbb97'){for(let j=0;j<5;j++){const a=j/5*Math.PI*2;const petal=blob('#617f93',[x+Math.cos(a)*.12*s,y+(.4+Math.sin(a)*.12)*s,z+.39*s],[.045*s,.075*s,.012*s],parent);petal.rotation.z=-a;}blob('#617f93',[x,y+.4*s,z+.42*s],[.035*s,.035*s,.015*s],parent);}
 }
 function roof(parent,w,d,y,c){
- // Two gently sloping ceramic-tile surfaces; barrel tiles are built as half tubes.
  const length=d+.45,half=w/2+.25,slope=.48;
- for(const side of [-1,1]){const board=box('#81694e',[side*half/2,y-half*slope/2,0],[half+.1,.16,length],.07,parent);board.rotation.z=-side*Math.atan(slope);
- for(let row=0;row<Math.ceil(half/.37);row++)for(let col=0;col<Math.ceil(length/.36);col++){
-  const xx=(row+.5)*.37,zz=-length/2+col*.36+.18;
-  const tile=mesh(new T.CylinderGeometry(.19,.19,.47,8,1,true,0,Math.PI).rotateZ(Math.PI/2),[c,'#7d898d','#6c7c83'][Math.floor(rand()*3)],[side*xx,y-xx*slope+.12,zz],[1,1,1],parent);tile.rotation.set(0,0,-side*Math.atan(slope));
- }}
- beam([-w/2-.3,y-(w/2+.3)*slope,-length/2],[w/2+.3,y-(w/2+.3)*slope,-length/2],.10,'#947450',parent);
- for(let j=0;j<Math.ceil(length/.4);j++){const t=cyl('#687d83',[0,y+.1,-length/2+j*.4+.2],.15,.15,.44,parent);t.rotation.x=Math.PI/2;}
+ const tileSection=new T.Shape();tileSection.moveTo(-.205,0);tileSection.quadraticCurveTo(0,.26,.205,0);tileSection.lineTo(.205,-.055);tileSection.quadraticCurveTo(0,.19,-.205,-.055);tileSection.closePath();
+ const tileGeo=new T.ExtrudeGeometry(tileSection,{depth:.48,bevelEnabled:true,bevelThickness:.018,bevelSize:.012,bevelSegments:2,steps:1,curveSegments:8});tileGeo.rotateY(Math.PI/2);tileGeo.translate(-.24,0,0);
+ for(const side of [-1,1]){
+  const board=box('#81694e',[side*half/2,y-half*slope/2,0],[half+.1,.13,length],.05,parent);board.rotation.z=-side*Math.atan(slope);
+  for(let row=0;row<Math.ceil(half/.38);row++)for(let col=0;col<Math.ceil(length/.39);col++){
+   const xx=(row+.5)*.38,zz=-length/2+col*.39+.19;
+   const tile=mesh(tileGeo,[c,'#4d596e','#657084','#586578'][Math.floor(rand()*4)],[side*xx,y-xx*slope+.12+(rand()-.5)*.02,zz],[1,1,1],parent);tile.rotation.z=-side*Math.atan(slope);
+  }
+  beam([side*half,y-half*slope,-length/2],[side*half,y-half*slope,length/2],.095,'#947450',parent);
+ }
+ for(let j=0;j<Math.ceil(length/.38);j++){const t=cyl('#4d596e',[0,y+.13,-length/2+j*.38+.18],.16,.18,.38,parent);t.rotation.x=Math.PI/2;}
+ for(const z of [-length/2,length/2])for(const side of [-1,1])beam([0,y+.02,z],[side*half,y-half*slope,z],.07,'#947450',parent);
 }
 function table(parent,x,z,w=1.3){box('#9c7b54',[x,.66,z],[w,.15,.75],.035,parent);for(const a of [-1,1])for(const b of [-1,1])cyl('#94704d',[x+a*(w/2-.13),.3,z+b*.23],.06,.07,.62,parent);}
-function workshop(x,z,rot,s=1){const g=group(x,.05,z,rot);g.scale.setScalar(s);box('#d9c7a6',[0,1.05,0],[2.9,2.1,2.1],.16,g);box('#b19770',[0,.1,.1],[3.25,.2,2.5],.07,g);box('#665b46',[.45,.75,1.06],[.8,1.5,.07],.06,g);box('#aa8a5b',[-.7,1.25,1.09],[.67,.7,.08],.02,g);for(let j=0;j<4;j++)box('#6e705a',[-.93+j*.15,1.25,1.14],[.045,.57,.03],.01,g);for(const xx of [-1.45,1.45])cyl('#947147',[xx,1.18,1.1],.08,.10,2.35,g);roof(g,3.2,2.6,2.85,'#687c83');
+function workshop(x,z,rot,s=1){const g=group(x,.05,z,rot);g.scale.setScalar(s);box('#d9c7a6',[0,1.05,0],[2.9,2.1,2.1],.16,g);box('#b19770',[0,.1,.1],[3.25,.2,2.5],.07,g);box('#665b46',[.45,.75,1.06],[.8,1.5,.07],.06,g);box('#aa8a5b',[-.7,1.25,1.09],[.67,.7,.08],.02,g);for(let j=0;j<4;j++)box('#6e705a',[-.93+j*.15,1.25,1.14],[.045,.57,.03],.01,g);for(const xx of [-1.45,1.45])cyl('#947147',[xx,1.18,1.1],.08,.10,2.35,g);roof(g,3.2,2.6,2.85,'#536078');
  for(let j=0;j<3;j++){box('#a18256',[-.95,.6+j*.5,1.5],[.9,.09,.4],.02,g);pot(-1.12,.65+j*.5,1.5,.38,['#b8865b','#9aafa9','#d4c39c'][j],g);pot(-.7,.65+j*.5,1.5,.29,'#ccbb97',g);}
  table(g,.75,1.8,1.1);pot(.65,.74,1.8,.55,'#c9d1bd',g);pot(1.05,.74,1.8,.35,'#a2b8b4',g);box('#b79970',[-1.9,.25,1.3],[.7,.5,.7],.05,g);pot(-1.9,.5,1.3,.5,'#c6a77e',g);
  for(let k=0;k<12;k++){const x=-1.2+rand()*2.4,y=.3+rand()*1.6;if(x>.05&&x<.85&&y<1.5)continue;blob('#d3be96',[x,y,1.067],[.12+rand()*.09,.07+rand()*.06,.025],g);}
@@ -108,7 +137,7 @@ function workshop(x,z,rot,s=1){const g=group(x,.05,z,rot);g.scale.setScalar(s);b
  return g;}
 workshop(-7.0,-5.0,.12,1.35);workshop(-8.0,4.3,.32,1.16);
 // Kiln-side lean-tos and shelves.
-for(const s of [-1,1]){const shed=new T.Group();shed.position.set(s*2.25,0,0);kiln.add(shed);roof(shed,1.7,2.5,2.15,'#8b887a');for(const z of [-1.15,1.15])cyl('#98734d',[s*.7,.92,z],.075,.09,1.85,shed);table(shed,0,.3,1.3);pot(-.35,.74,.3,.55,'#b99f79',shed);pot(.3,.74,.3,.43,'#c0cbb8',shed);pot(.2,0,1.05,.63,'#bb8a60',shed);}
+for(const s of [-1,1]){const shed=new T.Group();shed.position.set(s*2.25,0,0);kiln.add(shed);roof(shed,1.7,2.5,2.15,'#667080');for(const z of [-1.15,1.15])cyl('#98734d',[s*.7,.92,z],.075,.09,1.85,shed);table(shed,0,.3,1.3);pot(-.35,.74,.3,.55,'#b99f79',shed);pot(.3,.74,.3,.43,'#c0cbb8',shed);pot(.2,0,1.05,.63,'#bb8a60',shed);}
 function market(x,z,rot){const g=group(x,.05,z,rot);for(const xx of [-1.6,1.6])for(const zz of [-.75,.75])cyl('#9a754b',[xx,1.2,zz],.085,.11,2.4,g);beam([-1.8,2.4,-.8],[1.8,2.4,-.8],.09,'#94704c',g);beam([-1.8,2.4,.8],[1.8,2.4,.8],.09,'#94704c',g);for(let j=0;j<8;j++){const aw=box(j%2?'#d5c9ab':'#e5dbbd',[-1.45+j*.41,2.36,.05],[.43,.08,1.9],.04,g);aw.rotation.x=.10;blob(j%2?'#d5c9ab':'#e5dbbd',[-1.45+j*.41,2.23,1.03],[.22,.14,.04],g);}table(g,0,.25,3);for(let j=0;j<7;j++)pot(-1.25+j*.4,.74,.2,.35+rand()*.2,j%2?'#9badac':'#cec4a8',g);box('#aa895e',[-1.45,.23,1.35],[.6,.46,.6],.04,g);pot(1.35,0,1.4,.8,'#b4c2bb',g);return g;}
 market(7,-4.2,-.4);
 // Stream ribbon: all points lie inside the island until its front spillway.
@@ -129,7 +158,7 @@ for(let i=0;i<145;i++){const a=rand()*Math.PI*2,x=Math.cos(a)*(15.7+rand()*.3),z
 // Small white clay flowers, concentrated rather than scattered everywhere.
 for(let i=0;i<16;i++){const x=-12.6+rand()*1.3,z=-2+rand()*1.6,y=.32+rand()*.35;beam([x,.08,z],[x,y,z],.018,'#7a9161');for(let j=0;j<5;j++){const a=j/5*Math.PI*2;blob('#efe7cf',[x+Math.cos(a)*.12,y,z+Math.sin(a)*.12],[.1,.045,.07]);}blob('#c9ad64',[x,y+.025,z],[.05,.04,.05]);}
 // Gentle kiln glow and transparent smoke are the only moving scene assets.
-const fireLight=new T.PointLight('#ffa34d',5,6,2);fireLight.position.set(-.6,1.2,1.85);scene.add(fireLight);const flames=[];for(let i=0;i<4;i++){const f=new T.Mesh(sphere,new T.MeshBasicMaterial({color:i%2?'#ffc574':'#ffe1a3'}));f.position.set(-1.08+i*.32,.9,1.7);f.scale.set(.11,.35,.06);scene.add(f);flames.push(f);}
+const fireLight=new T.PointLight('#ffa34d',5,6,2);fireLight.position.set(-.6,.85,1.0);scene.add(fireLight);const flames=[];for(let i=0;i<4;i++){const f=new T.Mesh(sphere,new T.MeshBasicMaterial({color:i%2?'#ffc574':'#ffe1a3'}));f.position.set(-1.08+i*.32,.65,1.2);f.scale.set(.11,.35,.06);scene.add(f);flames.push(f);}
 const smokeCv=document.createElement('canvas');smokeCv.width=smokeCv.height=64;const sx=smokeCv.getContext('2d'),grad=sx.createRadialGradient(32,32,0,32,32,30);grad.addColorStop(0,'rgba(255,249,230,.5)');grad.addColorStop(1,'rgba(255,249,230,0)');sx.fillStyle=grad;sx.fillRect(0,0,64,64);const smokeScene=new T.Scene();const smokeTx=new T.CanvasTexture(smokeCv),smokes=[];for(let i=0;i<9;i++){const s=new T.Sprite(new T.SpriteMaterial({map:smokeTx,transparent:true,opacity:.22,depthWrite:false}));smokeScene.add(s);smokes.push(s);}
 
 // Moss, broad leaves and pebbles occupy the banks and building edges, leaving paths clear.
@@ -140,11 +169,6 @@ for(let i=0;i<750;i++){const a=rand()*Math.PI*2,r=rand()>.42?(.87+rand()*.1):(.2
 for(let i=0;i<65;i++){const t=i/64,p=riverCurve.getPoint(t),v=riverCurve.getTangent(t);for(const sign of [-1,1]){const xx=p.x-v.z*(1.12+rand()*.25)*sign,zz=p.z+v.x*(1.12+rand()*.25)*sign;if(!nearTile(xx,zz,1.15)){shrub(xx,zz,.75);if(i%3===0)blob('#8f9180',[xx,.16,zz],[.3,.25,.28]);}}}
 // Hand-shaped paving stones around the furnace courtyard.
 for(let i=0;i<100;i++){const x=-3.7+rand()*7,z=1.2+rand()*3.9;if(riverDist(x,z)<1.1)continue;const stone=box(['#c1a17a','#cbb08a','#bb9970'][i%3],[x,.095,z],[.22+rand()*.36,.09,.18+rand()*.28],.05);stone.rotation.y=rand()*3;}
-// Fired-earth seams and hand-laid masonry on the kiln dome and chimney.
-for(let j=0;j<6;j++){const y=.35+j*.37;const radius=2.05*Math.sqrt(Math.max(.05,1-((y-1.45)/1.75)**2));for(let k=0;k<22;k++){const a=(k+(j%2)*.5)/22*Math.PI*2;const xx=Math.cos(a)*radius,zz=Math.sin(a)*radius*.83;if(zz>1.0&&Math.abs(xx)<1.05&&y<1.85)continue;const chip=box(j%2?'#aa6444':'#bb7652',[xx,y,zz],[.28,.025,.025],.01,kiln);chip.rotation.y=-a-Math.PI/2;if(k%3===0)beam([xx,y,zz],[xx*.99,y+.13,zz*.99],.012,'#a96345',kiln);}}
-for(let j=0;j<5;j++){const y=2.9+j*.25,r=.69-(y-2.7)*.16;const ring=mesh(new T.TorusGeometry(r,.013,6,32),'#9d5f42',[0,y,-.25],[1,1,1],kiln);ring.rotation.x=Math.PI/2;}
-
-for(let i=0;i<44;i++){const y=.6+rand()*2,a=rand()*Math.PI*2,r=2.05*Math.sqrt(Math.max(.02,1-((y-1.45)/1.75)**2)),x=Math.cos(a)*r,z=Math.sin(a)*r*.83;if(z>1.0&&Math.abs(x)<1.1&&y<1.9)continue;const finger=blob(['#b77450','#bf7b54','#ad6948'][i%3],[x,y,z],[.1+rand()*.12,.04,.015],kiln);finger.rotation.y=-a+Math.PI/2;}
 // Wood piles, clay sacks, shelves and a working pottery wheel.
 for(let i=0;i<16;i++){const xx=-3.5+(i%4)*.22,yy=.18+Math.floor(i/4)*.18;const log=cyl('#8e663e',[xx,yy,1.1],.10,.12,.9,kiln);log.rotation.x=Math.PI/2;}
 const wheel=cyl('#b59165',[-2.25,.45,1.5],.45,.55,.15,kiln);cyl('#94764e',[-2.25,.21,1.5],.12,.17,.45,kiln);pot(-2.25,.53,1.5,.45,'#b77c57',kiln);
@@ -161,7 +185,7 @@ scene.updateMatrixWorld(true);const buckets=new Map();for(const m of baked){cons
 for(const b of buckets.values()){const merged=mergeGeometries(b.geometries,false);if(!merged)throw Error('場景幾何合併失敗');const m=new T.Mesh(merged,b.material);m.castShadow=m.receiveShadow=true;scene.add(m);b.geometries.forEach(g=>g.dispose());}
 const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));const ao=new SSAOPass(scene,camera,innerWidth,innerHeight);ao.kernelRadius=1.0;ao.minDistance=.001;ao.maxDistance=.11;composer.addPass(ao);const smokePass=new RenderPass(smokeScene,camera);smokePass.clear=false;composer.addPass(smokePass);composer.addPass(new OutputPass());
 let low=false,tween=null;const wide=()=>innerWidth/innerHeight>1.2;function moveTo(pos,target){controls.autoRotate=false;$('#spin').setAttribute('aria-pressed','false');tween={from:camera.position.clone(),to:new T.Vector3(...pos),targetFrom:controls.target.clone(),targetTo:new T.Vector3(...target),start:performance.now()};}
-function home(){moveTo(wide()?[8,23,33]:[54,63,79],[0,0,0]);}camera.position.set(...(wide()?[8,23,33]:[54,63,79]));controls.update();$('#home').onclick=home;$('#kiln').onclick=()=>moveTo([8,9,14],[-.6,1,-.5]);$('#river').onclick=()=>moveTo([14,9,14],[5,.2,2.5]);$('#spin').onclick=()=>{tween=null;controls.autoRotate=!controls.autoRotate;$('#spin').setAttribute('aria-pressed',String(controls.autoRotate));};controls.addEventListener('start',()=>{tween=null;controls.autoRotate=false;$('#spin').setAttribute('aria-pressed','false');});$('#quality').onclick=()=>{low=!low;renderer.setPixelRatio(low?1:Math.min(devicePixelRatio,1.6));renderer.shadowMap.enabled=!low;ao.enabled=!low;composer.setPixelRatio(low?1:Math.min(devicePixelRatio,1.6));scene.traverse(o=>{if(o.material)o.material.needsUpdate=true;});$('#quality').setAttribute('aria-pressed',String(low));};
+function home(){moveTo(wide()?[8,23,33]:[54,63,79],[0,0,0]);}camera.position.set(...(wide()?[8,23,33]:[54,63,79]));controls.update();$('#home').onclick=home;$('#kiln').onclick=()=>moveTo([6,6.8,12],[-.6,2,-.5]);$('#river').onclick=()=>moveTo([14,9,14],[5,.2,2.5]);$('#spin').onclick=()=>{tween=null;controls.autoRotate=!controls.autoRotate;$('#spin').setAttribute('aria-pressed',String(controls.autoRotate));};controls.addEventListener('start',()=>{tween=null;controls.autoRotate=false;$('#spin').setAttribute('aria-pressed','false');});$('#quality').onclick=()=>{low=!low;renderer.setPixelRatio(low?1:Math.min(devicePixelRatio,1.6));renderer.shadowMap.enabled=!low;ao.enabled=!low;composer.setPixelRatio(low?1:Math.min(devicePixelRatio,1.6));scene.traverse(o=>{if(o.material)o.material.needsUpdate=true;});$('#quality').setAttribute('aria-pressed',String(low));};
 const ray=new T.Raycaster();let pointerStart=null,selected=null;renderer.domElement.addEventListener('pointerdown',e=>pointerStart=[e.clientX,e.clientY]);renderer.domElement.addEventListener('pointerup',e=>{if(!pointerStart||Math.hypot(e.clientX-pointerStart[0],e.clientY-pointerStart[1])>5)return;const r=renderer.domElement.getBoundingClientRect();ray.setFromCamera(new T.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);const hit=ray.intersectObjects(picks)[0];if(!hit)return;if(selected)selected.material=tileMaterials.get(selected.userData.id);selected=hit.object;selected.material=material('#b9cb97');const id=selected.userData.id,t=MAP4[id],desc={mat:'取得對應材料',shop:'購買店鋪或支付租金',market:'進行材料交易',shrine:'取得本輪競價加成',lucky:'吉祥格',prank:'抽取整蠱事件',fortune:'財神格',dock:'渡口交易',any:'選擇材料',start:'經過起點領取銀兩'};$('#info').replaceChildren();const title=document.createElement('strong');title.textContent=tileName(t)+' · '+id;$('#info').append(title,document.createTextNode(desc[t.t]+'｜下一格：'+t.n.map(n=>tileName(MAP4[n])).join(' / ')));});
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);});
 renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();$('#loading').style.display='grid';$('#loading').textContent='圖形連線已中斷，請重新整理頁面。';});
