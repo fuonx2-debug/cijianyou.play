@@ -93,7 +93,7 @@ for(let side=0;side<2;side++)for(let j=0;j<=kh;j++){
  const door=y<.95?.76:y<1.85?.76*Math.sqrt(1-((y-.95)/.9)**2):0;
  const gap=Math.asin(Math.min(.95,door/r));
  for(let i=0;i<=kn;i++){const a=gap+i/kn*(Math.PI*2-2*gap),w=.018*Math.sin(a*9+y*7)+.01*Math.sin(a*23-y*11);kp.push(Math.sin(a)*(r+w),y,Math.cos(a)*(r+w)*.83);ku.push(a/Math.PI,y*.5);
- if(i<kn&&j<kh){const k=side*(kn+1)*(kh+1)+j*(kn+1)+i;side?ki.push(k,k+1,k+kn+1,k+1,k+kn+2,k+kn+1):ki.push(k,k+kn+1,k+1,k+1,k+kn+1,k+kn+2);}}
+ if(i<kn&&j<kh){const k=side*(kn+1)*(kh+1)+j*(kn+1)+i;side?ki.push(k,k+kn+1,k+1,k+1,k+kn+1,k+kn+2):ki.push(k,k+1,k+kn+1,k+1,k+kn+2,k+kn+1);}}
 }
 const kg=new T.BufferGeometry();kg.setAttribute('position',new T.Float32BufferAttribute(kp,3));kg.setAttribute('uv',new T.Float32BufferAttribute(ku,2));kg.setIndex(ki);kg.computeVertexNormals();mesh(kg,'#bd704c',[0,0,0],[1,1,1],kiln);
 // Fired clay chimney has an open lip and an interior bore.
